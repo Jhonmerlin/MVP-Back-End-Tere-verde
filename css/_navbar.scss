@@ -1,0 +1,36 @@
+#navbar{
+    border: 3px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    background-color: #02702e;
+    
+    
+    
+    
+}
+
+#navbar ul{
+    margin-left: 120px;
+    display: flex;
+    text-transform: uppercase;
+    text-decoration: none;
+    list-style-type: none;
+    gap:20px;
+    padding: 10px;
+}
+
+#navbar li {
+    text-align: center;
+    font-family: "Bebas Neue", sans-serif;
+    font-style: normal;
+    font-size: 30px;
+}
+
+#navbar a{
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #9e7306;
+
+}
