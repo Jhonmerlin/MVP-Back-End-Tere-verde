@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MVP Trilhas</title>
+</head>
+
+<body>
+
+    <h2>Login</h2>
+    <input id="login-email" placeholder="email"><br>
+    <input id="login-pass" placeholder="senha" type="password"><br>
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+    <p id="login-res"></p>
+
+    <hr>
+
+    <h2>Cadastro (gera token ao criar)</h2>
+    <input id="reg-name" placeholder="nome"><br>
+    <input id="reg-email" placeholder="email"><br>
+    <input id="reg-pass" placeholder="senha" type="password"><br>
+    <button onclick="register()">Cadastrar</button>
+    <p id="reg-res"></p>
+
+    <hr>
+
+    <!-- ÁREA SOMENTE PARA ADMIN -->
+    <div id="admin-area" style="display:none;">
+
+        <h2>Área do Admin — Criar Nova Trilha</h2>
+        <input id="t-title" placeholder="título"><br>
+        <input id="t-desc" placeholder="descrição"><br>
+        <input id="t-file" type="file"><br>
+        <button onclick="createTrilha()">Criar Trilha</button>
+        <p id="t-res"></p>
+
+        <hr>
+        <h2>Listar Trilhas (admin)</h2>
+        <button onclick="listarTrilhas()">Listar</button>
+        <div id="trilhas"></div>
+    </div>
+
+    <script src="java.js"></script>
+</body>
+
+</html>
+

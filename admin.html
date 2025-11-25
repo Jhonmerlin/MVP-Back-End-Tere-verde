@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Admin</title></head>
+<body>
+
+<h1>Painel Admin</h1>
+
+<h2>Criar Trilha</h2>
+<input id="title" placeholder="Título"><br>
+<input id="description" placeholder="Descrição"><br>
+<input type="file" id="image"><br>
+<button onclick="createTrilha()">Criar</button>
+
+<h1 style="color:red">TESTE DE ADMIN</h1>
+
+<h2>Todas as Trilhas</h2>
+<div id="lista"></div>
+
+<!-- CORREÇÃO DEFINITIVA -->
+ <script>
+    console.log("Admin HTML carregou");
+    carregarTrilhasAdmin();
+</script>
+
+<script src="java.js"></script>
+<script>
+    carregarTrilhasAdmin();
+</script>
+</body>
+</html>
+
