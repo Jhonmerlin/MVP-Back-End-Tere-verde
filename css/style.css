@@ -28,6 +28,7 @@ body::before {
 }
 
 #navbar-head h1 {
+  gap: 15px;
   margin: 0;
   font-size: 50px;
   text-transform: uppercase;
