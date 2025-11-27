@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+ <body>
+    <h1>Lista de trilhas</h1>
+    
+    <div id="lista">
+        <p>Aguarde, carregando trilhas...</p> 
+    </div>
+    
+            {%if evento.nome_arquivo %}
+                <img src="{{ url_for('static', filename='uploads/' + evento.nome_arquivo) }}"
+                alt="Imagem de {{ evento.nome }}" style="max-width: 300px; margin-right: 10px;">
+             {% endif %}
+
+
+    <script src="{{url_for('static', filename='js/java.js')}}"></script>
+    <script>carregarTrilhas();</script>
+
+</body>
+</body>
+</html>

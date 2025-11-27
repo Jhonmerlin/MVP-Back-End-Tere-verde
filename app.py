@@ -1,274 +1,342 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-import sqlite3
-import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import jwt
-from functools import wraps
-from datetime import datetime, timedelta, timezone
-
-# ---------- CONFIG ----------
-SECRET_KEY = "muda_essa_chave_para_algo_secreto"  # troque em produção
-ADMIN_EMAIL = "admin@admin.com"
-ADMIN_PASS = "1234"
-
-app = Flask(__name__, static_folder="static")
-CORS(app)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+import os
+import functools # Usaremos para o decorador de admin
+from flask import jsonify
 
 
-# ---------- DB helpers ----------
-def connection():
-    return sqlite3.connect(DB_PATH)
+# --- Configuração Básica ---
+app = Flask(__name__)
 
+# Configuração do banco de dados SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Use uma chave secreta real e complexa!
+app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_longa_e_segura_para_sessions' 
 
-def init_db():
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT UNIQUE,
-            password TEXT,
-            role TEXT DEFAULT 'user'
-        );
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS trilhas(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            description TEXT,
-            image TEXT
-        );
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS trilha_inscritos(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            trilha_id INTEGER,
-            user_id INTEGER,
-            created_at TEXT
-        );
-    """)
-    conn.commit()
-    conn.close()
+db = SQLAlchemy(app)
 
+# Configuração do upload de arquivos
+app.config["UPLOAD_FOLDER"] = "static/uploads"
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+PER_PAGE = 5 
 
-init_db()
+# --- Definição dos Modelos do Banco de Dados ---
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False) # Novo campo para distinguir admin
 
-# ---------- JWT helpers ----------
-def generate_token(user_id, role, expires_minutes=120):
-    current_time = datetime.now(timezone.utc)
-    payload = {
-        "sub": user_id,
-        "role": role,
-        "exp": current_time + timedelta(minutes=expires_minutes),
-        "iat": current_time
-    }
-    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
-def decode_token(token):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        return payload
-    except Exception:
-        return None
+    def __repr__(self):
+        return f"User('{self.username}')"
 
+class Imagem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome_arquivo = db.Column(db.String(150), nullable=False)
+    titulo = db.Column(db.String(100), nullable=False) # NOVO: Campo Titulo
+    descricao = db.Column(db.String(300), nullable=False)
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Para saber quem criou
 
-def token_required(role_required=None):
-    def decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            auth = request.headers.get("Authorization", None)
-            print("AUTH HEADER RECEBIDO:", auth)
+    def __repr__(self):
+        return f"Imagem('{self.titulo}', '{self.descricao}')"
 
-            if not auth:
-                return jsonify({"error": "Token ausente"}), 401
+# --- Dados de Exemplo para Eventos (Em memória) ---
+inscricoes = db.Table('inscricoes',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('evento_id', db.Integer, db.ForeignKey('evento.id'), primary_key=True)
+)
 
-            try:
-                token = auth.replace("Bearer ", "")
-                payload = decode_token(token)
+class Evento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    descricao = db.Column(db.String(300), nullable=False)
+    data = db.Column(db.String(50), nullable=False) 
+    nome_arquivo = db.Column(db.String(255), nullable=True)
 
-                if not payload:
-                    return jsonify({"error": "Token inválido ou expirado"}), 401
+    # Relacionamento com a tabela de inscrições
+    participantes = db.relationship('User', secondary=inscricoes, lazy='subquery',
+                                    backref=db.backref('eventos_inscritos', lazy=True))
 
-                if role_required and payload.get("role") != role_required:
-                    return jsonify({"error": "Permissão negada"}), 403
+    def __repr__(self):
+        return f"Evento('{self.nome}', '{self.data}')"
 
-                request.user_id = payload.get("sub")
-                request.user_role = payload.get("role")
+# --- Rota de Inicialização do Banco de Dados ---
+with app.app_context():
+    db.create_all() 
+    # Adicione eventos de teste se a tabela estiver vazia
+    if Evento.query.count() == 0:
+        db.session.add(Evento(nome='Trilha Ecológica da Pedra', descricao='Subida moderada de 4h.', data='2025-12-10'))
+        db.session.add(Evento(nome='Workshop de Jardins Suspensos', descricao='Aprenda a criar seu jardim.', data='2025-12-15'))
+        db.session.commit()
+        
+# --- FUNÇÃO DECORATOR PARA RESTRINGIR ACESSO ADMIN ---
+def admin_required(view_func):
+    @functools.wraps(view_func)
+    def wrapper(*args, **kwargs):
+        # 1. Verifica se o usuário está logado
+        if 'user_id' not in session:
+            flash("Você precisa estar logado para acessar esta página.", 'warning')
+            return redirect(url_for('login'))
+        
+        # 2. Verifica se o usuário é admin
+        user = User.query.get(session['user_id'])
+        if not user or not user.is_admin:
+            flash("Acesso negado. Apenas administradores podem acessar.", 'danger')
+            return redirect(url_for('index'))
+            
+        return view_func(*args, **kwargs)
+    return wrapper
 
-            except Exception as e:
-                print("ERRO NO TOKEN:", e)
-                return jsonify({"error": "Token inválido"}), 401
+# --- Rota de Inicialização do Banco de Dados ---
+# Rode o app.py UMA VEZ com esta linha descomentada para criar/atualizar o banco de dados
+# # Depois, COMENTE-A novamente.
+# with app.app_context():
+#         db.create_all()
+# # #     # Cria um usuário ADMIN padrão na primeira execução (SE NÃO EXISTIR)
+#         if not User.query.filter_by(username='admin').first():
+#             admin_user = User(username='admin', is_admin=True)
+#             admin_user.set_password('admin123') # Troque a senha!
+#             db.session.add(admin_user)
+#             db.session.commit()
 
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator
+# --- ROTAS DE AUTENTICAÇÃO E REGISTRO ---
 
+# app.py
 
-# ---------- ROTAS ----------
+# ... (Mantenha as importações, modelos e configurações anteriores) ...
+
+# Rotas de Registro e Login unificadas
+@app.route("/login", methods=["GET", "POST"])
+def login(): # Nome genérico para a função
+
+    if request.method == "POST":
+        # Identifica se a requisição veio do formulário de LOGIN ou REGISTRO
+        action = request.form.get('action') # Usaremos um campo oculto no HTML para isso
+
+        if action == 'login':
+            # --- Lógica de LOGIN ---
+            username = request.form.get("login_username")
+            password = request.form.get("login_password")
+            user = User.query.filter_by(username=username).first()
+            
+            if user and user.check_password(password):
+                session['user_id'] = user.id
+                session['is_admin'] = user.is_admin
+                flash(f"Login bem-sucedido. Bem-vindo(a) {username}!", 'success')
+                return redirect(url_for('admin' if user.is_admin else 'index'))
+            else:
+                flash("Nome de usuário ou senha inválidos para o login.", 'danger')
+        
+        elif action == 'registro':
+            # --- Lógica de REGISTRO ---
+            username = request.form.get("register_username")
+            password = request.form.get("register_password")
+            
+            if User.query.filter_by(username=username).first():
+                flash("Este nome de usuário já está em uso para o registro.", 'warning')
+            else:
+                new_user = User(username=username)
+                new_user.set_password(password)
+                db.session.add(new_user)
+                db.session.commit()
+                flash("Cadastro realizado com sucesso! Faça login.", 'success')
+                # Opcional: Logar o usuário automaticamente
+                # session['user_id'] = new_user.id
+                # session['is_admin'] = new_user.is_admin
+                
+    return render_template("login.html")
+
+# Remove a rota @app.route("/registro") se ela existir
+
+@app.route("/logout")
+def logout():
+    session.pop('user_id', None)
+    session.pop('is_admin', None)
+    flash("Você foi desconectado(a).", 'info')
+    return redirect(url_for('index'))
+
+# --- ROTAS PRINCIPAIS ---
+@app.route("/inscrever/<int:evento_id>", methods=["POST"])
+def inscrever_evento(evento_id):
+    # Verifica se o usuário está logado
+    if 'user_id' not in session:
+        flash("Você precisa estar logado para se inscrever.", 'warning')
+        return redirect(url_for('autenticacao')) 
+
+    evento = Evento.query.get_or_404(evento_id)
+    user = User.query.get(session['user_id'])
+    
+    # Verifica se já está inscrito
+    if user in evento.participantes:
+        flash("Você já está inscrito neste evento.", 'info')
+    else:
+        evento.participantes.append(user)
+        db.session.commit()
+        flash(f"Inscrição no evento '{evento.nome}' realizada com sucesso!", 'success')
+    
+    return redirect(url_for('user'))
+
+@app.route("/api/eventos", methods=["GET"])
+def listar_eventos_api():
+    eventos_db = Evento.query.all()
+    # Converte os objetos Evento para uma lista de dicionários
+    eventos_json = [
+        {
+            "id": evento.id,
+            "nome": evento.nome,
+            "descricao": evento.descricao,
+            "data": evento.data,
+            "nome_arquivo": evento.nome_arquivo,
+            # Retorna apenas a contagem de participantes para o usuário
+            "inscritos_count": len(evento.participantes), 
+        } 
+        for evento in eventos_db
+    ]
+    return jsonify(eventos_json)
+@app.route("/user")
+def user():
+    return render_template("user.html")
 
 @app.route("/")
-def home():
-    return jsonify({"message": "API rodando!"})
+def index():
+    imagens = Imagem.query.all() # Ou paginar aqui também, se necessário
+    eventos = Evento.query.all()
+    return render_template("index.html", imagens=imagens, eventos=eventos)
+
+# --- ROTAS DE ADMINISTRAÇÃO (AGORA PROTEGIDAS) ---
+
+@app.route("/admin")
+@admin_required # PROTEÇÃO: APENAS ADMIN PODE ACESSAR
+def admin():
+    page = request.args.get('page', 1, type=int)
+    imagens_paginadas = Imagem.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    
+    eventos = Evento.query.all()
 
 
-# --- LOGIN ADMIN / USER ---
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
-
-    # Login do admin fixo
-    if email == ADMIN_EMAIL and password == ADMIN_PASS:
-        token = generate_token(0, "admin")
-        return jsonify({"token": token, "role": "admin"})
-
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id, password, role FROM users WHERE email=?", (email,))
-    user = cur.fetchone()
-    conn.close()
-
-    if not user or user[1] != password:
-        return jsonify({"error": "Credenciais inválidas"}), 401
-
-    token = generate_token(user[0], user[2])
-    return jsonify({"token": token, "role": user[2]})
+    return render_template(
+        "admin.html", 
+        imagens=imagens_paginadas,
+        eventos=eventos
+    )
 
 
-# --- REGISTRO DE USUÁRIO ---
-@app.route("/register", methods=["POST"])
-def register():
-    data = request.json
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
 
-    conn = connection()
-    cur = conn.cursor()
+# ... (Dentro da seção de ROTAS DE ADMINISTRAÇÃO PROTEGIDAS) ...
 
-    try:
-        cur.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-                    (name, email, password))
-        conn.commit()
-        conn.close()
-        return jsonify({"message": "Usuário registrado com sucesso"})
-    except:
-        return jsonify({"error": "Email já registrado"}), 400
+# 4. CRIAR Evento
+@app.route("/admin/criar_evento", methods=["POST"])
+@admin_required
+def criar_evento():
+    nome = request.form.get("nome")
+    descricao = request.form.get("descricao")
+    data = request.form.get("data") # Novo campo para a data/hora
+    arquivo = request.files.get("imagem")
+    nome_arquivo = None
+    if arquivo and arquivo.filename:
+        # 1. Salva o arquivo no disco (pasta static/uploads)
+        nome_seguro = secure_filename(arquivo.filename)
+        caminho = os.path.join(app.config["UPLOAD_FOLDER"], nome_seguro)
+        arquivo.save(caminho)
+        
+        # 2. Armazena o nome do arquivo para o DB
+        nome_arquivo = nome_seguro
 
+    novo_evento = Evento(
+        nome=nome, 
+        descricao=descricao, 
+        data=data,
+        nome_arquivo=nome_arquivo)
+    db.session.add(novo_evento)
+    db.session.commit()
+    flash("Evento criado com sucesso!", 'success')
+    return redirect(url_for("admin"))
 
-# --- CRIAR TRILHA ---
-@app.route("/trilhas", methods=["POST"])
-@token_required(role_required="admin")
-def create_trilha():
-    title = request.form.get("title")
-    description = request.form.get("description")
-    image = request.files.get("image")
-
-    filename = None
-    if image:
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(UPLOAD_FOLDER, filename))
-
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO trilhas (title, description, image)
-        VALUES (?, ?, ?)
-    """, (title, description, filename))
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Trilha criada com sucesso"})
+# 5. APAGAR Evento
+@app.route("/admin/apagar_evento/<int:evento_id>", methods=["POST"])
+@admin_required
+def apagar_evento(evento_id):
+    evento_para_apagar = Evento.query.get_or_404(evento_id)
+    db.session.delete(evento_para_apagar)
+    db.session.commit()
+    flash("Evento apagado com sucesso!", 'success')
+    return redirect(url_for("admin"))
 
 
-# --- LISTAR TRILHAS ---
-@app.route("/trilhas", methods=["GET"])
-def list_trilhas():
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM trilhas")
-    rows = cur.fetchall()
-    conn.close()
 
-    trilhas = []
-    for r in rows:
-        trilhas.append({
-            "id": r[0],
-            "title": r[1],
-            "description": r[2],
-            "image": r[3]
-        })
-
-    return jsonify(trilhas)
+# # 2. EDITAR (GET e POST) - Com Titulo e Descricao separados
+# @app.route("/admin/editar_imagem/<int:img_id>", methods=["GET", "POST"])
+# @admin_required # PROTEÇÃO: APENAS ADMIN PODE USAR
+# # 6. EDITAR Evento - Rota GET (Para exibir o formulário)
+# @app.route("/admin/editar_evento/<int:evento_id>", methods=["GET"])
+# @admin_required
+# def editar_evento(evento_id):
+#     evento_para_editar = Evento.query.get_or_404(evento_id)
+#     return render_template("editar_evento.html", evento=evento_para_editar)
 
 
-# --- EDITAR TRILHA ---
-@app.route("/trilhas/<int:id>", methods=["PUT"])
-@token_required(role_required="admin")
-def update_trilha(id):
-    data = request.json
-    title = data.get("title")
-    description = data.get("description")
+# 7. EDITAR Evento - Rota POST (Para processar o envio)
+@app.route("/admin/editar_evento/<int:evento_id>", methods=["POST"])
+@admin_required
+def processar_edicao_evento(evento_id):
+    evento_para_editar = Evento.query.get_or_404(evento_id)
+    
+    # 1. Atualiza os campos de texto
+    evento_para_editar.nome = request.form.get("nome")
+    evento_para_editar.descricao = request.form.get("descricao")
+    evento_para_editar.data = request.form.get("data")
+    
+    # 2. Processa o novo arquivo de imagem (se houver)
+    novo_arquivo = request.files.get("imagem")
 
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE trilhas SET title=?, description=? WHERE id=?
-    """, (title, description, id))
-    conn.commit()
-    conn.close()
+    if novo_arquivo and novo_arquivo.filename:
+        # Verifica e apaga o arquivo antigo, se existir
+        if evento_para_editar.nome_arquivo:
+            caminho_antigo = os.path.join(app.config["UPLOAD_FOLDER"], evento_para_editar.nome_arquivo)
+            if os.path.exists(caminho_antigo):
+                os.remove(caminho_antigo)
+        
+        # Salva o novo arquivo
+        nome_seguro = secure_filename(novo_arquivo.filename)
+        caminho_novo = os.path.join(app.config["UPLOAD_FOLDER"], nome_seguro)
+        novo_arquivo.save(caminho_novo)
+        
+        # Atualiza o nome no banco de dados
+        evento_para_editar.nome_arquivo = nome_seguro
+        
+    # 3. Commit e Redirecionamento
+    db.session.commit() 
+    flash("Evento editado com sucesso!", 'success')
+    return redirect(url_for("admin"))
 
-    return jsonify({"message": "Trilha atualizada"})
+# 3. APAGAR Imagem (POST)
+@app.route("/admin/apagar_imagem/<int:img_id>", methods=["POST"])
+@admin_required # PROTEÇÃO: APENAS ADMIN PODE USAR
+def apagar_imagem(img_id):
+    imagem_para_apagar = Imagem.query.get_or_404(img_id)
+    
+    # 1. Apaga o arquivo do disco
+    caminho_arquivo = os.path.join(app.config["UPLOAD_FOLDER"], imagem_para_apagar.nome_arquivo)
+    if os.path.exists(caminho_arquivo):
+        os.remove(caminho_arquivo)
+    
+    # 2. Apaga o registro do banco de dados
+    db.session.delete(imagem_para_apagar)
+    db.session.commit()
+    
+    return redirect(url_for("admin"))
 
+# ... (outras rotas de evento/inscrição) ...
 
-# --- DELETAR TRILHA ---
-@app.route("/trilhas/<int:id>", methods=["DELETE"])
-@token_required(role_required="admin")
-def delete_trilha(id):
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM trilhas WHERE id=?", (id,))
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Trilha removida"})
-
-
-# --- INSCREVER EM TRILHA ---
-@app.route("/trilhas/<int:trilha_id>/inscrever", methods=["POST"])
-@token_required()
-def inscrever(trilha_id):
-    user_id = request.user_id
-
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO trilha_inscritos (trilha_id, user_id, created_at)
-        VALUES (?, ?, ?)
-    """, (trilha_id, user_id, datetime.now().isoformat()))
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Inscrição realizada com sucesso"})
-
-
-# --- SERVE IMAGENS ---
-@app.route("/uploads/<path:filename>")
-def serve_image(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
-
-
-# ---------- RUN ----------
 if __name__ == "__main__":
     app.run(debug=True)

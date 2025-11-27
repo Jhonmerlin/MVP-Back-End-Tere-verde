@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teresópolis Verde</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     
     
     <header id= "navbar-head">
-        <img id="img-logo" src="../imagens/mountain.png" alt="logo do site">
+        <img id="img-logo" src="../static/imagens/mountain.png" alt="logo do site">
         <h1 id="titulo">teresópolis Verde</h1>
     </header>
     </div>
@@ -18,8 +18,8 @@
     <nav id="navbar">
         <ul>
             <li><a href="#">Sobre</a></li>
-            <li><a href="login.html">Eventos</a></li>
-            <li><a href="login.html">Reservas</a></li>
+            <li><a href="{{ url_for('login') }}">Reservas</a></li>
+            <li><a href="{{ url_for('user') }}">Eventos</a></li>
         </ul>
 
     </nav>

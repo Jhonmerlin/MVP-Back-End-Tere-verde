@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Galeria</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+
+       <hr>
+    <h2>Gestão de Trilhas/Eventos</h2>
+
+<h3>Criar Novo Evento/Trilha</h3>
+<form method="POST" action="{{ url_for('criar_evento') }}" enctype="multipart/form-data"> 
+    <label for="nome">Nome do Evento:</label>
+    <input type="text" name="nome" required>
+    <br><br>
+    
+    <label for="imagem">Imagem do Evento (Opcional):</label>
+    <input type="file" name="imagem" id="imagem" accept="image/*">
+    <br><br>
+    
+    <label for="descricao">Descrição:</label>
+    <input type="text" name="descricao" required>
+    <br><br>
+
+    <label for="data">Data e Hora:</label>
+    <input type="datetime-local" name="data" required>
+    <br><br>
+
+    <button type="submit">Adicionar Evento</button>
+</form>
+
+<hr>
+
+<h3>Eventos Existentes</h3>
+
+{% if eventos %}
+    {% for evento in eventos %}
+
+        <div>
+            {%if evento.nome_arquivo %}
+                <img src="{{ url_for('static', filename='uploads/' + evento.nome_arquivo) }}"
+                alt="Imagem de {{ evento.nome }}" style="max-width: 100px; margin-right: 10px;">
+             {% endif %}
+             
+            <h4>{{ evento.nome }} (ID: {{ evento.id }})</h4>
+            <p>Data: {{ evento.data }}</p>
+            <p>Participantes: {{ evento.participantes | length }}</p>
+            <p>Descrição: {{ evento.descricao }}</p>
+            
+            <form method="POST" action="{{ url_for('apagar_evento', evento_id=evento.id) }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Tem certeza que deseja apagar o evento {{ evento.nome }}?');" 
+                    style="color:red; background:none; border:1px solid red; cursor:pointer;">APAGAR EVENTO</button>
+            </form>
+        </div>
+        <hr>
+    {% endfor %}
+{% else %}
+    <p>Nenhum evento/trilha cadastrada.</p>
+{% endif %}
+
+
+    <div id="galeria"></div>
+
+    <script src="{{url_for('static', filename='js/java.js')}}"></script>
+
+
+
+    <script>
+        console.log("Admin HTML carregou");
+        inicializarAdmin();
+    </script>
+
+
+    </body>
+    </html>
+

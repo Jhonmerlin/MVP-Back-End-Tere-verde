@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h2>Editar Conteúdo: ID {{ imagem.id }}</h2>
+
+<form method="POST" action="{{ url_for('editar_imagem', img_id=imagem.id) }}" enctype="multipart/form-data">
+    
+    <img src="{{ url_for('static', filename='uploads/' + imagem.nome_arquivo) }}" 
+         alt="{{ imagem.descricao }}" 
+         style="max-width: 200px;">
+    <br><br>
+    
+    <label for="titulo">Novo Título:</label>
+    <input type="text" name="titulo" id="titulo" value="{{ imagem.titulo }}" required>
+    <br><br>
+    
+    <label for="descricao">Nova Descrição:</label>
+    <input type="text" name="descricao" id="descricao" value="{{ imagem.descricao }}" required>
+    <button type="submit">Salvar Alterações</button>
+</form>
+
+    <label for="descricao">Nova Descrição:</label>
+    <input type="text" name="descricao" id="descricao" value="{{ imagem.descricao }}" required>
+    <br><br>
+
+    <label for="imagem">Substituir Imagem (Opcional):</label>
+    <input type="file" name="imagem" id="imagem">
+    <br><br>
+
+    <button type="submit">Salvar Alterações</button>
+    
+</form>
+
+<p>
+    <a href="{{ url_for('admin') }}">Cancelar e Voltar</a>
+</p>
+</body>
+</html>

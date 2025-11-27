@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+</head>
+<body>
+
+<h2>Acesse ou Crie sua Conta</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for category, message in messages %}
+      <li style="color: red;">{{ message }}</li> {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div style="display: flex; justify-content: space-around;">
+    
+    <div style="border: 1px solid #ccc; padding: 20px;">
+        <h3>Login</h3>
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="hidden" name="action" value="login">
+            
+            <label for="login_username">Usuário:</label>
+            <input type="text" name="login_username" required>
+            <br><br>
+            
+            <label for="login_password">Senha:</label>
+            <input type="password" name="login_password" required>
+            <br><br>
+            
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 20px;">
+        <h3>Novo Registro</h3>
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="hidden" name="action" value="registro">
+
+            <label for="register_username">Escolha o Usuário:</label>
+            <input type="text" name="register_username" required>
+            <br><br>
+            
+            <label for="register_password">Escolha uma Senha:</label>
+            <input type="password" name="register_password" required>
+            <br><br>
+            
+            <button type="submit">Criar Conta</button>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/java.js') }}"></script>
+</body>
+</html>
+
