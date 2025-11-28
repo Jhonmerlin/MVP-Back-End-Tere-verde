@@ -26,9 +26,25 @@
 }
 
 #titulo{
-  background-image: linear-gradient(to left,#c55733 30%,#024e21ac 70% );
+  text-shadow: -2px -2px 1px #2dc907; 
+  background-image: linear-gradient(to left,#000 20%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   
+}
+
+.button-head{
+  padding: 5px;
+  border: 3px solid black;
+  font-size: 40px;
+  background: #02702e ;
+  text-align: center;             
+  font-family: "Bebas Neue", sans-serif;
+  font-style: normal;
+}
+
+.button-head a{
+  text-decoration: none;
+  color:#9e7306 ;
 }

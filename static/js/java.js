@@ -1,8 +1,5 @@
-// java.js - NOVO CONTEÚDO
-
 const API = "http://127.0.0.1:5000";
 
-// alert("java.js carregou!"); // Remova o alert para produção
 
 // --- FUNÇÕES PRINCIPAIS DE TRILHAS/EVENTOS ---
 
@@ -33,16 +30,19 @@ function carregarTrilhas() {
                 const trilhaItem = document.createElement('div');
                 let imagemHTML = '';
                 if (trilha.nome_arquivo) {
-                    imagemHTML = `<img src="${API}/static/uploads/${trilha.nome_arquivo}" alt="Imagem do Evento ${trilha.nome}" style="max-width: 300px; height: auto; display: block; margin-bottom: 10px;">`;
+                    imagemHTML = `<img src="/static/uploads/${trilha.nome_arquivo}" alt="Imagem do Evento ${trilha.nome}" style="max-width: 300px; height: auto; display: block; margin-bottom: 10px;">`;
                 }
-                trilhaItem.innerHTML = `
-                <hr>
-                <h3>${trilha.nome} (${trilha.data})</h3>
-                <p>${trilha.descricao}</p>
-                <p>Participantes: ${trilha.inscritos_count} pessoas</p>
+                // ARQUIVO: java.js (DENTRO da função carregarTrilhas, após o bloco if (trilha.nome_arquivo) { ... })
+
+        trilhaItem.innerHTML = `
+         ${imagemHTML}  
                 
-                <button onclick="inscreverUsuario(${trilha.id})">Inscrever-se na Trilha</button>
-            `;
+        <h3>${trilha.nome} (${trilha.data})</h3>
+        <p>${trilha.descricao}</p>
+        <p>Participantes: ${trilha.inscritos_count} pessoas</p>
+    
+        <button onclick="inscreverUsuario(${trilha.id})">Inscrever-se na Trilha</button>
+`;;
             listaDiv.appendChild(trilhaItem);
             });
         })
@@ -90,7 +90,7 @@ async function carregarImagens() {
         <div class="box">
             <img src="${API}/static/uploads/${nomeArquivo}">
             <p>Título: ${img.titulo}</p>
-            <p>Descrição: ${img.descricao}</p>
+            <p class="descricao-imagem">Descrição: ${img.descricao}</p>
             <button onclick="deletar('${img.id}')">Deletar</button>
         </div>
         `;
@@ -125,7 +125,3 @@ function inicializarAdmin() {
     // Inicializa o carregamento das imagens (se a galeria existir)
     carregarImagens();
 }
-
-// CORREÇÃO: Chave } Faltando no final do arquivo
-// (Esta chave estava incompleta no seu upload, vamos removê-la aqui) 
-// Se a chave no final do seu código estiver correta (fechando a função inscreverUsuario), ignore isso.

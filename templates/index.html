@@ -12,19 +12,34 @@
     <header id= "navbar-head">
         <img id="img-logo" src="../static/imagens/mountain.png" alt="logo do site">
         <h1 id="titulo">teresópolis Verde</h1>
+        <p class="button-head"><a href="{{ url_for('login') }}">Login</a></p>
+        
     </header>
     </div>
 
     <nav id="navbar">
         <ul>
             <li><a href="#">Sobre</a></li>
-            <li><a href="{{ url_for('login') }}">Reservas</a></li>
             <li><a href="{{ url_for('user') }}">Eventos</a></li>
         </ul>
 
     </nav>
 
-    
+   <main class="box-main">
+    <span>
+        <div class="left-column"> <img src="../static/imagens/Mirante_do_Soberbo_-_Guapimirim.jpg" alt="mirante do soberbo" class="montanha-img"> 
+            <iframe id="img-street" src="https://www.google.com/maps/embed?pb=!4v1764343989275!6m8!1m7!1skjqS5TvFL3GbSaX8r9_W8A!2m2!1d-22.46322871507015!2d-42.98850589518125!3f268.1356389973563!4f-2.724576461398513!5f0.7820865974627469" width="400" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div> 
+        <div class="box-texto">
+            <h2>O Mirante do Soberbo</h2>
+            <p> O Parque Nacional da Serra dos Órgãos oferece a maior rede de trilhas do Brasil. São mais de 200 Km de trilhas em todos os níveis de dificuldade. Para esse trajeto, siga a estrada até a Barragem e desça por uma caminhada no arvorismo, depois faça as trilhas até o ponto do Cartão Postal (cartão postal) e Mozart, local que leva o nome de um montanhista brasileiro com vista para Teresópolis.
+                Da trilha você avistará o Dedo de Deus, palco do nascimento do Montanhismo no Brasil. Com 1.692 metros de altitude, o local leva este nome devido a semelhança a uma mão apontando o dedo indicador para o céu.
+                O parque fica fechado às segundas-feiras para manutenção.</p>
+            
+        </div>
+        
+    </span>
+</main>
 
 </body>
 </html>

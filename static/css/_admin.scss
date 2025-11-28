@@ -1,0 +1,47 @@
+.admin-form-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #f7f7f7;
+            border-radius: 8px;
+        }
+.admin-form-container input[type="text"],
+.admin-form-container input[type="datetime-local"],
+.admin-form-container input[type="file"] {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+.btn-submit {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+.btn-submit:hover {
+            background-color: #45a049;
+        }
+.event-box {
+            background: #ccc;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+.event-box img {
+            max-width: 150px; 
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+.descricao-imagem {
+            color: gray;
+            font-style: italic;
+        }

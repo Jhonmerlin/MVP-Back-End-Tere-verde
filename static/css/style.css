@@ -39,10 +39,26 @@ body::before {
 }
 
 #titulo {
-  background-image: linear-gradient(to left, #c55733 30%, rgba(2, 78, 33, 0.6745098039) 70%);
+  text-shadow: -2px -2px 1px #2dc907;
+  background-image: linear-gradient(to left, #000 20%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+}
+
+.button-head {
+  padding: 5px;
+  border: 3px solid black;
+  font-size: 40px;
+  background: #02702e;
+  text-align: center;
+  font-family: "Bebas Neue", sans-serif;
+  font-style: normal;
+}
+
+.button-head a {
+  text-decoration: none;
+  color: #9e7306;
 }
 
 #navbar {
@@ -75,6 +91,127 @@ body::before {
   text-transform: uppercase;
   text-decoration: none;
   color: #9e7306;
+}
+
+/* Exemplo de classe em style.css */
+.descricao-imagem {
+  width: 200px;
+  max-height: 200px;
+  overflow: hidden;
+}
+
+#box {
+  background-color: white;
+  width: 350px;
+}
+
+.card {
+  max-width: 350px;
+}
+
+.admin-form-container {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+}
+
+.admin-form-container input[type=text],
+.admin-form-container input[type=datetime-local],
+.admin-form-container input[type=file] {
+  width: calc(100% - 16px);
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.btn-submit {
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.btn-submit:hover {
+  background-color: #45a049;
+}
+
+.event-box {
+  background: #ccc;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+}
+
+.event-box img {
+  max-width: 150px;
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.descricao-imagem {
+  color: gray;
+  font-style: italic;
+}
+
+/* Seu CSS ORIGINAL para o contêiner principal */
+.box-main {
+  border-radius: 4px;
+  margin-top: 150px;
+  border: 5px solid black;
+  background: #c55733;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.box-main span {
+  display: flex;
+  border: 1px solid black;
+  gap: 20px;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+}
+
+.left-column .montanha-img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.left-column #img-street {
+  width: 100%;
+  height: 250px;
+}
+
+.box-texto {
+  max-width: 600px;
+}
+
+.box-texto h2, .box-texto p {
+  font-family: "Bebas Neue", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.box-texto h2 {
+  margin-bottom: 8px;
+  font-size: 1.5em;
 }
 
 * {

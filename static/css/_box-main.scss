@@ -1,0 +1,56 @@
+/* Seu CSS ORIGINAL para o contêiner principal */
+.box-main {
+    border-radius: 4px;
+    margin-top: 150px;
+    border: 5px solid black;
+    background: #c55733;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+
+.box-main span {
+    display: flex;
+    border: 1px solid black;
+    gap: 20px; 
+}
+
+
+.left-column {
+    display: flex;
+    flex-direction: column; 
+    width: 400px; 
+}
+
+
+.left-column .montanha-img {
+    width: 100%; 
+    height: auto; 
+    margin-bottom: 10px; 
+    border-radius: 4px; 
+}
+
+
+.left-column #img-street {
+    width: 100%;
+    height: 250px; 
+}
+
+
+
+.box-texto {
+    max-width: 600px;
+}
+
+.box-texto h2, .box-texto p {
+    font-family: "Bebas Neue", sans-serif;
+    text-align: center;
+    margin: 0; 
+    padding: 0;
+    display: block; 
+}
+
+.box-texto h2 {
+    margin-bottom: 8px; 
+    font-size: 1.5em; 
+}

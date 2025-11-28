@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Evento: {{ evento.nome }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    
+    <h2>Editar Evento: ID {{ evento.id }}</h2>
+
+    <form method="POST" action="{{ url_for('processar_edicao_evento', evento_id=evento.id) }}" enctype="multipart/form-data">
+        
+        {% if evento.nome_arquivo %}
+            <p>Imagem Atual:</p>
+            <img src="{{ url_for('static', filename='uploads/' + evento.nome_arquivo) }}" 
+                 alt="Imagem atual do evento" 
+                 style="max-width: 200px; display: block; margin-bottom: 10px;">
+        {% endif %}
+        
+
+        <label for="nome">Nome do Evento:</label>
+        <input type="text" name="nome" id="nome" value="{{ evento.nome }}" required>
+        <br><br>
+        
+        <label for="descricao">Descrição:</label>
+        <textarea name="descricao" id="descricao" required>{{ evento.descricao }}</textarea>
+        <br><br>
+
+        <label for="data">Data e Hora:</label>
+        <input type="datetime-local" name="data" id="data" value="{{ evento.data }}" required>
+        <br><br>
+        
+        <label for="imagem">Substituir Imagem (Opcional):</label>
+        <input type="file" name="imagem" id="imagem" accept="image/*">
+        <br><br>
+
+        <button type="submit">Salvar Alterações</button>
+        
+    </form>
+    <p>
+        <a href="{{ url_for('admin') }}">Cancelar e Voltar</a>
+    </p>
+
+</body>
+</html>

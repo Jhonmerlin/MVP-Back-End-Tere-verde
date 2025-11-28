@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
-import functools # Usaremos para o decorador de admin
+import functools 
 from flask import jsonify
 
 
@@ -45,7 +45,7 @@ class Imagem(db.Model):
     nome_arquivo = db.Column(db.String(150), nullable=False)
     titulo = db.Column(db.String(100), nullable=False) # NOVO: Campo Titulo
     descricao = db.Column(db.String(300), nullable=False)
-    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Para saber quem criou
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Para saber quem criou
 
     def __repr__(self):
         return f"Imagem('{self.titulo}', '{self.descricao}')"
@@ -75,7 +75,7 @@ with app.app_context():
     db.create_all() 
     # Adicione eventos de teste se a tabela estiver vazia
     if Evento.query.count() == 0:
-        db.session.add(Evento(nome='Trilha Ecológica da Pedra', descricao='Subida moderada de 4h.', data='2025-12-10'))
+        db.session.add(Evento(nome='Trilha Ecológica da Pedra', descricao='Subida moderada de 4h.', data='2025-12-10',))
         db.session.add(Evento(nome='Workshop de Jardins Suspensos', descricao='Aprenda a criar seu jardim.', data='2025-12-15'))
         db.session.commit()
         
@@ -97,23 +97,19 @@ def admin_required(view_func):
         return view_func(*args, **kwargs)
     return wrapper
 
-# --- Rota de Inicialização do Banco de Dados ---
-# Rode o app.py UMA VEZ com esta linha descomentada para criar/atualizar o banco de dados
-# # Depois, COMENTE-A novamente.
-# with app.app_context():
-#         db.create_all()
+# Rode o app.py UMA VEZ 
+#with app.app_context():
+         #db.create_all()
 # # #     # Cria um usuário ADMIN padrão na primeira execução (SE NÃO EXISTIR)
-#         if not User.query.filter_by(username='admin').first():
-#             admin_user = User(username='admin', is_admin=True)
-#             admin_user.set_password('admin123') # Troque a senha!
-#             db.session.add(admin_user)
-#             db.session.commit()
+         #if not User.query.filter_by(username='admin').first():
+             #admin_user = User(username='admin', is_admin=True)
+             #db.session.add(admin_user)
+             #admin_user.set_password('admin123') # Troque a senha!
+             #db.session.commit()
 
 # --- ROTAS DE AUTENTICAÇÃO E REGISTRO ---
 
 # app.py
-
-# ... (Mantenha as importações, modelos e configurações anteriores) ...
 
 # Rotas de Registro e Login unificadas
 @app.route("/login", methods=["GET", "POST"])
@@ -156,7 +152,7 @@ def login(): # Nome genérico para a função
                 
     return render_template("login.html")
 
-# Remove a rota @app.route("/registro") se ela existir
+
 
 @app.route("/logout")
 def logout():
@@ -272,17 +268,14 @@ def apagar_evento(evento_id):
     flash("Evento apagado com sucesso!", 'success')
     return redirect(url_for("admin"))
 
+@app.route("/admin/editar_evento/<int:evento_id>", methods=["GET"])
+@admin_required
+def editar_evento(evento_id):
+    evento_para_editar = Evento.query.get_or_404(evento_id)
 
-
-# # 2. EDITAR (GET e POST) - Com Titulo e Descricao separados
-# @app.route("/admin/editar_imagem/<int:img_id>", methods=["GET", "POST"])
-# @admin_required # PROTEÇÃO: APENAS ADMIN PODE USAR
-# # 6. EDITAR Evento - Rota GET (Para exibir o formulário)
-# @app.route("/admin/editar_evento/<int:evento_id>", methods=["GET"])
-# @admin_required
-# def editar_evento(evento_id):
-#     evento_para_editar = Evento.query.get_or_404(evento_id)
-#     return render_template("editar_evento.html", evento=evento_para_editar)
+    return render_template(
+        "admin_edit_event.html", 
+        evento=evento_para_editar)
 
 
 # 7. EDITAR Evento - Rota POST (Para processar o envio)
