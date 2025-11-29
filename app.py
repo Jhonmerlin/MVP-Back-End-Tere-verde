@@ -10,10 +10,9 @@ from flask import jsonify
 # --- Configuração Básica ---
 app = Flask(__name__)
 
-# Configuração do banco de dados SQLite
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# Use uma chave secreta real e complexa!
 app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_longa_e_segura_para_sessions' 
 
 db = SQLAlchemy(app)
@@ -29,7 +28,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False) # Novo campo para distinguir admin
+    is_admin = db.Column(db.Boolean, default=False) 
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -43,9 +42,9 @@ class User(db.Model):
 class Imagem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome_arquivo = db.Column(db.String(150), nullable=False)
-    titulo = db.Column(db.String(100), nullable=False) # NOVO: Campo Titulo
+    titulo = db.Column(db.String(100), nullable=False) 
     descricao = db.Column(db.String(300), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Para saber quem criou
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     def __repr__(self):
         return f"Imagem('{self.titulo}', '{self.descricao}')"
@@ -97,14 +96,14 @@ def admin_required(view_func):
         return view_func(*args, **kwargs)
     return wrapper
 
-# Rode o app.py UMA VEZ 
+
 #with app.app_context():
          #db.create_all()
 # # #     # Cria um usuário ADMIN padrão na primeira execução (SE NÃO EXISTIR)
          #if not User.query.filter_by(username='admin').first():
              #admin_user = User(username='admin', is_admin=True)
              #db.session.add(admin_user)
-             #admin_user.set_password('admin123') # Troque a senha!
+             #admin_user.set_password('admin123') 
              #db.session.commit()
 
 # --- ROTAS DE AUTENTICAÇÃO E REGISTRO ---
@@ -113,12 +112,11 @@ def admin_required(view_func):
 
 # Rotas de Registro e Login unificadas
 @app.route("/login", methods=["GET", "POST"])
-def login(): # Nome genérico para a função
+def login(): 
 
     if request.method == "POST":
         # Identifica se a requisição veio do formulário de LOGIN ou REGISTRO
-        action = request.form.get('action') # Usaremos um campo oculto no HTML para isso
-
+        action = request.form.get('action') 
         if action == 'login':
             # --- Lógica de LOGIN ---
             username = request.form.get("login_username")
@@ -146,9 +144,7 @@ def login(): # Nome genérico para a função
                 db.session.add(new_user)
                 db.session.commit()
                 flash("Cadastro realizado com sucesso! Faça login.", 'success')
-                # Opcional: Logar o usuário automaticamente
-                # session['user_id'] = new_user.id
-                # session['is_admin'] = new_user.is_admin
+                
                 
     return render_template("login.html")
 
@@ -193,7 +189,6 @@ def listar_eventos_api():
             "descricao": evento.descricao,
             "data": evento.data,
             "nome_arquivo": evento.nome_arquivo,
-            # Retorna apenas a contagem de participantes para o usuário
             "inscritos_count": len(evento.participantes), 
         } 
         for evento in eventos_db
@@ -205,14 +200,14 @@ def user():
 
 @app.route("/")
 def index():
-    imagens = Imagem.query.all() # Ou paginar aqui também, se necessário
+    imagens = Imagem.query.all() 
     eventos = Evento.query.all()
     return render_template("index.html", imagens=imagens, eventos=eventos)
 
-# --- ROTAS DE ADMINISTRAÇÃO (AGORA PROTEGIDAS) ---
+# --- ROTAS DE ADMINISTRAÇÃO  ---
 
 @app.route("/admin")
-@admin_required # PROTEÇÃO: APENAS ADMIN PODE ACESSAR
+@admin_required #<<< trava de acesso admin
 def admin():
     page = request.args.get('page', 1, type=int)
     imagens_paginadas = Imagem.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
@@ -228,9 +223,7 @@ def admin():
 
 
 
-# ... (Dentro da seção de ROTAS DE ADMINISTRAÇÃO PROTEGIDAS) ...
-
-# 4. CRIAR Evento
+#CRIAR Evento
 @app.route("/admin/criar_evento", methods=["POST"])
 @admin_required
 def criar_evento():
@@ -240,12 +233,12 @@ def criar_evento():
     arquivo = request.files.get("imagem")
     nome_arquivo = None
     if arquivo and arquivo.filename:
-        # 1. Salva o arquivo no disco (pasta static/uploads)
+        # Salva o arquivo no disco (pasta static/uploads)
         nome_seguro = secure_filename(arquivo.filename)
         caminho = os.path.join(app.config["UPLOAD_FOLDER"], nome_seguro)
         arquivo.save(caminho)
         
-        # 2. Armazena o nome do arquivo para o DB
+        #Armazena o nome do arquivo para o DB
         nome_arquivo = nome_seguro
 
     novo_evento = Evento(
@@ -258,7 +251,7 @@ def criar_evento():
     flash("Evento criado com sucesso!", 'success')
     return redirect(url_for("admin"))
 
-# 5. APAGAR Evento
+# APAGAR Evento
 @app.route("/admin/apagar_evento/<int:evento_id>", methods=["POST"])
 @admin_required
 def apagar_evento(evento_id):
@@ -278,7 +271,7 @@ def editar_evento(evento_id):
         evento=evento_para_editar)
 
 
-# 7. EDITAR Evento - Rota POST (Para processar o envio)
+
 @app.route("/admin/editar_evento/<int:evento_id>", methods=["POST"])
 @admin_required
 def processar_edicao_evento(evento_id):
@@ -312,7 +305,7 @@ def processar_edicao_evento(evento_id):
     flash("Evento editado com sucesso!", 'success')
     return redirect(url_for("admin"))
 
-# 3. APAGAR Imagem (POST)
+# APAGAR Imagem (POST)
 @app.route("/admin/apagar_imagem/<int:img_id>", methods=["POST"])
 @admin_required # PROTEÇÃO: APENAS ADMIN PODE USAR
 def apagar_imagem(img_id):

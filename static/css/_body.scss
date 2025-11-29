@@ -9,7 +9,18 @@ body {
 body::before {
   content: "";
   position: absolute;
-  inset: 0; /* cobre toda a tela */
-  background: rgba(0, 0, 0, 0.311); /* preto com 50% opacidade */
-  z-index: -1; /* fica atrás do conteúdo */
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.311); 
+  z-index: -1; 
+}
+
+.button-corpo{
+  justify-self: center;
+  max-width: 200px;
+  padding: 5px;
+  border: 3px solid black;
+  font-size: 40px;
+  background: #c7d2cb ;           
+  font-family: "Bebas Neue", sans-serif;
+  font-style: normal;
 }

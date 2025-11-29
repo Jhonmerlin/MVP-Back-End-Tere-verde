@@ -30,18 +30,20 @@ function carregarTrilhas() {
                 const trilhaItem = document.createElement('div');
                 let imagemHTML = '';
                 if (trilha.nome_arquivo) {
-                    imagemHTML = `<img src="/static/uploads/${trilha.nome_arquivo}" alt="Imagem do Evento ${trilha.nome}" style="max-width: 300px; height: auto; display: block; margin-bottom: 10px;">`;
+                    imagemHTML = `<img id="imagem-evento-${trilha.id}" class="imagem-trilha" src="/static/uploads/${trilha.nome_arquivo}" alt="Imagem do Evento ${trilha.nome}">`;
+
                 }
-                // ARQUIVO: java.js (DENTRO da função carregarTrilhas, após o bloco if (trilha.nome_arquivo) { ... })
 
         trilhaItem.innerHTML = `
          ${imagemHTML}  
                 
-        <h3>${trilha.nome} (${trilha.data})</h3>
-        <p>${trilha.descricao}</p>
-        <p>Participantes: ${trilha.inscritos_count} pessoas</p>
-    
-        <button onclick="inscreverUsuario(${trilha.id})">Inscrever-se na Trilha</button>
+        <div class="card-conteudo">
+            <h3>${trilha.nome} (${trilha.data})</h3>
+            <p>${trilha.descricao}</p>
+            <p>Participantes: ${trilha.inscritos_count} pessoas</p>
+            
+            <button onclick="inscreverUsuario(${trilha.id})">Inscrever-se na Trilha</button>
+        </div>
 `;;
             listaDiv.appendChild(trilhaItem);
             });
@@ -75,16 +77,15 @@ async function inscreverUsuario(eventoId) {
 // --- FUNÇÕES DE ADMIN (CRUD DE IMAGENS) ---
 
 async function carregarImagens() {
-    const galeria = document.getElementById("galeria"); // Busca localmente
-    if (!galeria) return; // Protege contra páginas sem galeria
+    const galeria = document.getElementById("galeria"); 
+    if (!galeria) return; 
 
-    const res = await fetch(API + "/imagens"); // CORREÇÃO: Usando a constante API
+    const res = await fetch(API + "/imagens"); 
     const data = await res.json();
 
     galeria.innerHTML = "";
 
     data.imagens.forEach(img => {
-        // CORREÇÃO: Usando nome_arquivo e titulo/descricao
         const nomeArquivo = img.nome_arquivo || img.arquivo; 
         galeria.innerHTML += `
         <div class="box">
@@ -106,8 +107,7 @@ async function deletar(id) {
 function inicializarAdmin() {
     const form = document.getElementById("formCadastro");
     
-    if (form) { // Verifica se o formulário existe
-        // Cadastrar
+    if (form) { 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
@@ -122,6 +122,6 @@ function inicializarAdmin() {
         });
     }
 
-    // Inicializa o carregamento das imagens (se a galeria existir)
+    
     carregarImagens();
 }

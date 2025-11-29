@@ -48,3 +48,48 @@
   text-decoration: none;
   color:#9e7306 ;
 }
+
+.texto-user{
+  text-align: center;
+  text-transform: uppercase;
+  font-family: "Bebas Neue", sans-serif;
+  font-style: normal;
+}
+
+#pedra-do-sino{
+  margin-left:  40px;
+  margin-top: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+#pedra-da-tartaruga{
+  margin-left:  40px;
+  margin-top: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+#bico-maior{
+  margin-top: 320px;
+  margin-left:  40px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  
+}
+
+.button-head-home img{
+  margin-right: 60px;
+  gap: 5px;
+  padding: 20px;
+  width: 100px;
+  height: 150px;
+}
+
+.button-head-login img{
+  
+  display: flex;
+  align-self: flex-end;
+  justify-self: center;
+}

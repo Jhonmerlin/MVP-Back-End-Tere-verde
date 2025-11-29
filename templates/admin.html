@@ -11,12 +11,10 @@
 <h2>Gestão de Trilhas/Eventos</h2>
 <hr>
 
-<!-- FORMULÁRIO DE CRIAÇÃO (FIXO NO TOPO) -->
 <div class="admin-form-container">
     
     <h3>Criar Novo Evento/Trilha</h3>
 
-    <!-- A rota 'criar_evento' e o método 'POST' estão corretos conforme o app.py -->
     <form method="POST" action="{{ url_for('criar_evento') }}" enctype="multipart/form-data"> 
         <label for="nome">Nome do Evento:</label>
         <input type="text" name="nome" required>

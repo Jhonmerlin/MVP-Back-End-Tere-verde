@@ -13,32 +13,78 @@
         <img id="img-logo" src="../static/imagens/mountain.png" alt="logo do site">
         <h1 id="titulo">teresópolis Verde</h1>
         <p class="button-head"><a href="{{ url_for('login') }}">Login</a></p>
-        
+        <a class="button-head-home" href="{{ url_for('index') }}"><img src="../static/imagens/home-button.png" alt="voltar-para-index"></a>
     </header>
     </div>
 
-    <nav id="navbar">
-        <ul>
-            <li><a href="#">Sobre</a></li>
-            <li><a href="{{ url_for('user') }}">Eventos</a></li>
-        </ul>
+    
 
-    </nav>
+  <main class="box-main">
+    
+    <div class="background-div">
+    <div class="coluna-esquerda"> 
+        <img src="../static/imagens/Mirante_do_Soberbo_-_Guapimirim.jpg" alt="mirante do soberbo" class="montanha-img"> 
+        <iframe class="map-iframe" src="https://www.google.com/maps/embed?pb=!4v1764343989275!6m8!1m7!1skjqS5TvFL3GbSaX8r9_W8A!2m2!1d-22.46322871507015!2d-42.98850589518125!3f268.1356389973563!4f-2.724576461398513!5f0.7820865974627469" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
-   <main class="box-main">
-    <span>
-        <div class="left-column"> <img src="../static/imagens/Mirante_do_Soberbo_-_Guapimirim.jpg" alt="mirante do soberbo" class="montanha-img"> 
-            <iframe id="img-street" src="https://www.google.com/maps/embed?pb=!4v1764343989275!6m8!1m7!1skjqS5TvFL3GbSaX8r9_W8A!2m2!1d-22.46322871507015!2d-42.98850589518125!3f268.1356389973563!4f-2.724576461398513!5f0.7820865974627469" width="400" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div> 
-        <div class="box-texto">
-            <h2>O Mirante do Soberbo</h2>
-            <p> O Parque Nacional da Serra dos Órgãos oferece a maior rede de trilhas do Brasil. São mais de 200 Km de trilhas em todos os níveis de dificuldade. Para esse trajeto, siga a estrada até a Barragem e desça por uma caminhada no arvorismo, depois faça as trilhas até o ponto do Cartão Postal (cartão postal) e Mozart, local que leva o nome de um montanhista brasileiro com vista para Teresópolis.
-                Da trilha você avistará o Dedo de Deus, palco do nascimento do Montanhismo no Brasil. Com 1.692 metros de altitude, o local leva este nome devido a semelhança a uma mão apontando o dedo indicador para o céu.
-                O parque fica fechado às segundas-feiras para manutenção.</p>
-            
-        </div>
+
+        <img src="../static/imagens/pedra-do-sino.avif" alt="pedra-do-sino" class="montanha-img">
+        <iframe class="map-iframe" src="https://www.google.com/maps/embed?pb=!4v1764369656295!6m8!1m7!1sCAoSF0NJSE0wb2dLRUlDQWdJQ2Nvdmk2a2dF!2m2!1d-22.47222204308903!2d-43.05472197073269!3f262.0842760651902!4f-17.91843943512815!5f0.7820865974627469" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         
-    </span>
+
+        <img class="montanha-img" src="../static/imagens/pedra-da-tartaruga.jpg" alt="pedra-da-tartaruga">
+        <iframe class="map-iframe" src="https://www.google.com/maps/embed?pb=!4v1764373599384!6m8!1m7!1sLIEUYcBo7OoTSwyJ1S8XsQ!2m2!1d-22.37241079418466!2d-42.98648647552837!3f358.2984595570978!4f-5.13752102354141!5f0.4000000000000002"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+        <img class="montanha-img" src="../static/imagens/bico-maior.jpg" alt="Bico-Maior">
+        <iframe class="map-iframe" src="https://www.google.com/maps/embed?pb=!4v1764375125266!6m8!1m7!1sCAoSFkNJSE0wb2dLRUlDQWdJQ0V6dkhSU1E.!2m2!1d-22.35931202625264!2d-42.79121398067943!3f214.60944341615104!4f-4.568576877350168!5f0.7820865974627469"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div> 
+
+        
+        
+    <div class="box-texto">
+        <h2>O Mirante do Soberbo</h2>
+        <p> O Parque Nacional da Serra dos Órgãos oferece a maior rede de trilhas do Brasil. São mais de 200 Km de trilhas em todos os níveis de dificuldade. Para esse trajeto, siga a estrada até a Barragem e desça por uma caminhada no arvorismo, depois faça as trilhas até o ponto do Cartão Postal e Mozart, local que leva o nome de um montanhista brasileiro com vista para Teresópolis.
+        Da trilha você avistará o Dedo de Deus, palco do nascimento do Montanhismo no Brasil. Com 1.692 metros de altitude, o local leva este nome devido a semelhança a uma mão apontando o dedo indicador para o céu.
+        O parque fica fechado às segundas-feiras para manutenção.</p>
+        <p class="button-corpo"><a href="{{ url_for('user') }}">Inscrição para a trilha</a></p>
+        
+        <span id="pedra-do-sino">
+        <h2>Pedra do Sino</h2>
+        <p>
+            Trilha saindo do estacionamento ao sul de Teresópolis, no final da PNSO - Estrada da Barragem. A trilha faz várias curvas e para em diferentes morros com alta altitude, elevando o nível de dificuldade desta trilha.
+        A Pedra do Sino tem 2.275m de altitude. O local é popular entre alpinistas. Do alto, se pode avistar toda a Baía de Guanabara, a cidade do Rio de Janeiro e parte do Vale do Paraíba. O nascer to cume também é fantástico. 
+        O Garrafão fica ao sul da Pedra do Sino, na parte alta da cadeia de montanhas do parque. A pedra tem 2.139 metros de altitude e também é ponto para pratica do montanhismo
+        </p>
+        </span>
+         <p class="button-corpo"><a href="{{ url_for('user') }}">Inscrição para a trilha</a></p>
+
+         <span id="pedra-da-tartaruga">
+        <h2>Pedra da Tartaruga</h2>
+        <p>
+            A trilha para a Pedra da Tartaruga fica na cidade de Teresópolis, no estado de Rio de Janeiro. A trilha é curta e íngreme, porém de fácil acesso. Ao fundo pode-se ver a famosa Pedra do Camelo. 
+            A trilha da Pedra do Camelo permite uma visão ampla das montanhas da região e um visual de tirar o fôlego. Este é um lugar famoso para a prática de rapel.
+
+
+        </span>    
+
+        <p style="align-self: center;" class="button-corpo"><a href="{{ url_for('user') }}">Inscrição para a trilha</a></p>
+        
+        <span id="bico-maior">
+        <h2>Bico Maior</h2>
+        <p>
+            O Parque Estadual dos Três Picos localiza-se na Região Serrana do RJ. O seu nome evoca os Três Picos de Friburgo, imponente conjunto de montanhas graníticas. 
+        O trajeto passa Bico Maior, com 1.507 m de altitude e pode ser acessado por caminhada, a ascensão será realizada em estrada de terra, pasto e trilha, formando um cenário único nessa bela paisagem.
+        O caminho é super agradável e exposto ao sol.
+        <p style="align-self: center;" class="button-corpo"><a href="{{ url_for('user') }}">Inscrição para a trilha</a></p>
+        
+        </p>
+        </span>
+         
+    </div>
+
+    
+    </div>
+    
+
 </main>
 
 </body>
